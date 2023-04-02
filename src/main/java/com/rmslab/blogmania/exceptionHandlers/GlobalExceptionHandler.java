@@ -8,6 +8,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -36,5 +38,12 @@ public class GlobalExceptionHandler {
                     errResp.put(fieldName, message) ;
                 });
         return new ResponseEntity<Map<String, String>>(errResp, HttpStatus.BAD_REQUEST) ;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Object> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException ex, WebRequest request) {
+        String error = "Invalid argument: " + ex.getName() + " with value " + ex.getValue();
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }
