@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService{
@@ -35,8 +36,12 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public PostDto createPost(PostDto postDto, int userId, int categoryId) {
-        User user = userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User","Id",userId)) ;
-        Category category = categoryRepository.findById(categoryId).orElseThrow(()-> new ResourceNotFoundException("Category","Id",categoryId)) ;
+        System.out.println("postDto: "+postDto);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new ResourceNotFoundException("User","Id",userId)) ;
+        Category category = categoryRepository
+                .findById(categoryId).orElseThrow(()-> new ResourceNotFoundException("Category","Id",categoryId)) ;
         Post post = postDtoToPost(postDto) ;
         post.setImageUrl("profile-pic.png");
         post.setDateOfPost(new Date());
@@ -48,22 +53,33 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public PostDto updatePost(PostDto postDto, int postId) {
-        return null;
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("post","postId",postId));
+        post.setTitle(post.getTitle());
+        post.setContent(post.getContent());
+        return postToDto(postRepository.save(post)) ;
     }
 
     @Override
     public List<PostDto> getAllPosts() {
-        return null;
+        return postRepository
+                .findAll()
+                .stream()
+                .map(post -> postToDto(post))
+                .collect(Collectors.toList());
     }
 
     @Override
     public PostDto getPostById(int postId) {
-        return null;
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("post","postId",postId)) ;
+        return postToDto(post) ;
     }
 
     @Override
     public void deletePost(int postId) {
-
+        if(postRepository.existsById(postId)) {
+            postRepository.deleteById(postId);
+        }
+        else throw new ResourceNotFoundException("post","postId",postId) ;
     }
 
     @Override

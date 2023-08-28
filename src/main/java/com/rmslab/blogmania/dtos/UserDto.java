@@ -7,10 +7,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @NoArgsConstructor
 @Setter
 @Getter
+@ToString
 public class UserDto {
     private int id ;
     @NotEmpty @Size(min=4, message = "Username must be minimum 4 characters")
